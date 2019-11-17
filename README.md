@@ -1,5 +1,6 @@
 # Discovery frequent itemsets and association rules
-Implementation of Apriori algorithm. This project was created as an assignment for ID2222 course at KTH.
+Implementation of Apriori algorithm from scratch. Generation of candidates, frequent itemsets and association rules.
+Subject: Data Mining. Programme: Master's degree in Data Science at KTH
 
 ## Requirements
 ```
