@@ -149,7 +149,7 @@
     \renewcommand{\LaTeX}{\textrm{\Oldlatex}}
     % Document parameters
     % Document title
-    \title{example}
+    \title{ID2222 HM2 - Discovery of Frequent Itemsets and Association Rules (100)}
     
     
     
@@ -290,194 +290,244 @@
     
 
     
+    \hypertarget{authors}{%
+\section{Authors}\label{authors}}
+
+\begin{itemize}
+\tightlist
+\item
+  Filip Finfando
+\item
+  Javier de la Rúa Martínez
+\end{itemize}
+
     \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
 This document is a report created as an assignment for ID2222 course at
-KTH. The aim of the assignment was to implement the stages of finding
-textually similar documents based on Jaccard similarity using the
-shingling, minhashing, and locality-sensitive hashing (LSH) techniques
-and corresponding algorithms. We used text abstracts from NSF Research
-Award Abstracts 1990-2003 Data Set {[}1{]} to test our solution. The
-example set of documents is saved in the repository.
+KTH. The main goal of the assignment was to implement the apriori
+algorithm to extract the frequent itemsets of a sale transaction dataset
+with a predefined support. Additionally, the extraction of association
+rules with a specific confidence based on these frequent itemsets have
+been developed. We used the given dataset of sale transactions. This
+dataset, together with some test datasets can be found in `test/data'
+folder in the repository.
 
     \hypertarget{solution}{%
 \section{Solution}\label{solution}}
 
 We decided to develop a project in Python 3.7 using popular libraries
-pro-vided in \texttt{requirements.txt} file in the repository. The whole
+provided in \texttt{requirements.txt} file in the repository. The whole
 repository itself is attached to this report. In order to fulfill the
-task assigned we developed two classes: 1. Document, representing a
-piece of text and providing methods for text transformation 2.
-Comparator being a wrapper for collecting the data, creating
-aforementioned Document classes and generating project results.
+task assigned we implemented the following scripts: 1. Run, main scripts
+to run the tests and print the results. 2. Apriori, representing an
+instance of the apriori algorithm and providing methods for extracting
+candidates, frequent itemsets and association rules.
 
     \hypertarget{running}{%
 \section{Running}\label{running}}
 
 In order for the solution to run, Python 3.7 has to be installed. We
-recommendcreating a virtual environment for the purpose of evaluating
-the solution. One can either use command line \texttt{python\ run.py} to
-save graphs to file or run the programme in attached jupyter notebook:
-\texttt{example.ipynb}. Below is the output of the jupyter notebook
-presenting the example run of the program.
+recommend creating a virtual environment for the purpose of evaluating
+the solution. One can either use command line \texttt{python\ run.py} or
+run the programme in attached jupyter notebook:
+\texttt{ID2222\ HM2\ -\ Discovery\ of\ Frequent\ Itemsets\ and\ Association\ Rules.ipynb}.
+Below is the output of the jupyter notebook presenting the example run
+of the program. Due to the extend of the output considering the number
+of association rules and the time of execution, the experiment is run
+over the first 300 elements of the dataset.
+
+    \hypertarget{creating-apriori-instance-and-generating-baskets}{%
+\section{Creating Apriori instance and generating
+baskets}\label{creating-apriori-instance-and-generating-baskets}}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{from} \PY{n+nn}{comparator} \PY{k}{import} \PY{n}{Comparator}
-        \PY{k+kn}{import} \PY{n+nn}{random}
+{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{import} \PY{n+nn}{os}
+        \PY{k+kn}{import} \PY{n+nn}{timeit}
+        \PY{k+kn}{from} \PY{n+nn}{apriori} \PY{k}{import} \PY{n}{Apriori}
         
-        \PY{n}{PATH} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{data}\PY{l+s+s2}{\PYZdq{}}
-        \PY{n}{N} \PY{o}{=} \PY{k+kc}{None}
-        \PY{n}{K} \PY{o}{=} \PY{l+m+mi}{5}
-        \PY{n}{SIGNATURE\PYZus{}LEN} \PY{o}{=} \PY{l+m+mi}{1000}
-        \PY{n}{THRESHOLD} \PY{o}{=} \PY{l+m+mf}{0.5}
-        \PY{n}{SEED} \PY{o}{=} \PY{l+m+mi}{42}
+        \PY{n}{PATH} \PY{o}{=} \PY{n}{os}\PY{o}{.}\PY{n}{getcwd}\PY{p}{(}\PY{p}{)} \PY{o}{+} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{/test/data/T10I4D100K.dat}\PY{l+s+s2}{\PYZdq{}}
+        \PY{n}{N} \PY{o}{=} \PY{l+m+mi}{100}
+        \PY{n}{SUPPORT} \PY{o}{=} \PY{l+m+mi}{4}
+        \PY{n}{CONFIDENCE} \PY{o}{=} \PY{l+m+mf}{0.75}
         
-        \PY{n}{random}\PY{o}{.}\PY{n}{seed}\PY{p}{(}\PY{n}{SEED}\PY{p}{)}
-        \PY{n}{c} \PY{o}{=} \PY{n}{Comparator}\PY{p}{(}\PY{n}{PATH}\PY{p}{,} \PY{n}{N}\PY{p}{,} \PY{n}{K}\PY{p}{,} \PY{n}{SIGNATURE\PYZus{}LEN}\PY{p}{,} \PY{n}{THRESHOLD}\PY{p}{)}
+        \PY{c+c1}{\PYZsh{} create a new instance of Apriori}
+        \PY{n}{apriori} \PY{o}{=} \PY{n}{Apriori}\PY{p}{(}\PY{p}{)}
+        
+        \PY{c+c1}{\PYZsh{} load baskets}
+        \PY{n}{lb\PYZus{}ms} \PY{o}{=} \PY{n}{timeit}\PY{o}{.}\PY{n}{timeit}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{apriori.load\PYZus{}baskets(PATH, n=N, sep=}\PY{l+s+s2}{\PYZsq{}}\PY{l+s+s2}{ }\PY{l+s+s2}{\PYZsq{}}\PY{l+s+s2}{, duplicates=False, verbose=True)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{number}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n+nb}{globals}\PY{o}{=}\PY{n+nb}{globals}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Baskets loaded: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{ seconds}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{lb\PYZus{}ms}\PY{p}{)}\PY{p}{)}
+        
+        \PY{k}{for} \PY{n}{basket} \PY{o+ow}{in} \PY{n}{apriori}\PY{o}{.}\PY{n}{baskets}\PY{p}{[}\PY{p}{:}\PY{l+m+mi}{10}\PY{p}{]}\PY{p}{:}
+            \PY{n+nb}{print}\PY{p}{(}\PY{n}{basket}\PY{p}{)}
 \end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Reading 100 lines{\ldots}
+Baskets loaded: 0.0003295 seconds
+['25', '52', '164', '240', '274', '328', '368', '448', '538', '561', '630', '687', '730', '775', '825', '834']
+['39', '120', '124', '205', '401', '581', '704', '814', '825', '834']
+['35', '249', '674', '712', '733', '759', '854', '950']
+['39', '422', '449', '704', '825', '857', '895', '937', '954', '964']
+['15', '229', '262', '283', '294', '352', '381', '708', '738', '766', '853', '883', '966', '978']
+['26', '104', '143', '320', '569', '620', '798']
+['7', '185', '214', '350', '529', '658', '682', '782', '809', '849', '883', '947', '970', '979']
+['227', '390']
+['71', '192', '208', '272', '279', '280', '300', '333', '496', '529', '530', '597', '618', '674', '675', '720', '855', '914', '932']
+['183', '193', '217', '256', '276', '277', '374', '474', '483', '496', '512', '529', '626', '653', '706', '878', '939']
+
+    \end{Verbatim}
+
+    \hypertarget{candidates-and-frequent-items-per-iteration}{%
+\subsection{Candidates and frequent items per
+iteration}\label{candidates-and-frequent-items-per-iteration}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}2}]:} \PY{c+c1}{\PYZsh{} get candidates and frequent itemsets}
+        \PY{n}{c\PYZus{}ms} \PY{o}{=} \PY{n}{timeit}\PY{o}{.}\PY{n}{timeit}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{apriori.compute(support=SUPPORT, stop=False, verbose=False)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{number}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n+nb}{globals}\PY{o}{=}\PY{n+nb}{globals}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Apriori computed: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{ seconds}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{c\PYZus{}ms}\PY{p}{)}\PY{p}{)}
+        
+        \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n+nb}{len}\PY{p}{(}\PY{n}{apriori}\PY{o}{.}\PY{n}{frequent\PYZus{}itemsets}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+            \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{L}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{i}\PY{p}{,} \PY{n+nb}{list}\PY{p}{(}\PY{n}{apriori}\PY{o}{.}\PY{n}{frequent\PYZus{}itemsets}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{)}\PY{p}{[}\PY{p}{:}\PY{l+m+mi}{10}\PY{p}{]}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+\# Computing C1 and L1{\ldots}
+- 470 candidates in 0.0 ms
+
+    \end{Verbatim}
 
     
     \begin{verbatim}
-HBox(children=(IntProgress(value=0, max=25), HTML(value='')))
+HBox(children=(IntProgress(value=0, max=470), HTML(value='')))
     \end{verbatim}
 
     
     \begin{Verbatim}[commandchars=\\\{\}]
-Text should be longer than 20 characters
-data/a9050100.txt
 
-Number of loaded documents: 24
-
-    \end{Verbatim}
-
-    \hypertarget{shingles}{%
-\section{Shingles}\label{shingles}}
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{sim\PYZus{}shi} \PY{o}{=} \PY{n}{c}\PY{o}{.}\PY{n}{compute\PYZus{}similarities}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{shingles}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
-        \PY{n}{c}\PY{o}{.}\PY{n}{generate\PYZus{}plots}\PY{p}{(}\PY{n}{sim\PYZus{}shi}\PY{p}{,} \PY{n}{save}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
-\end{Verbatim}
-
-    \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_5_0.png}
-    \end{center}
-    { \hspace*{\fill} \\}
-    
-    \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_5_1.png}
-    \end{center}
-    { \hspace*{\fill} \\}
-    
-    \begin{Verbatim}[commandchars=\\\{\}]
-0 data/a9001582.txt Japanese Language Award for Frank Pollick
-1 data/a9017348.txt MGR Honorable Mention: Sylvia R. Nieto
-2 data/a9018434.txt Development of a Multi-anvil Apparatus
-3 data/a9020902.txt Minority Graduate Research Honorable Mention: Katya Prince
-4 data/a9021100.txt Solar and Planetary Variations and Atmospheric Transparency
-5 data/a9055091.txt Young Scholars in Chemistry at UC-Denver
-6 data/a9104421.txt Mathematical Sciences: Research in "Stochastic Processes andtheir Applications
-7 data/a9107914.txt Mathematical Sciences: Postdoctoral Research Fellowship
-8 data/a9107969.txt Mathematical Sciences: Postdoctoral Research Fellowship
-9 data/a9113428.txt Elementary Particle and Astroparticle Physics
-10 data/a9117199.txt Rotational Spectroscopy of Small Clusters
-11 data/a9123845.txt Mathematical Sciences: Automorphic L-functions and Representation Theory
-12 data/a9203393.txt Mathematical Sciences: The Theory of Automorphic Forms
-13 data/a9207485.txt Japanese Language Award for Bill Cheongling Lai
-14 data/a9216545.txt A Generic Framework for Flexible Agent-Based Intelligent Control
-15 data/a9305308.txt Identification of Functionally Important Sequences in H1 Histones
-16 data/a9305965.txt Mathematical Sciences:Postdoctoral Research Fellowship
-17 data/a9353723.txt NSF-NATO POSTDOCTORAL FELLOWSHIP
-18 data/a9354081.txt GRADUATE RESEARCH FELLOWSHIP PROGRAM
-19 data/a9355770.txt GRADUATE RESEARCH FELLOWSHIP PROGRAM
-20 data/a9407458.txt Mathematical Sciences: Postdoctoral Research Fellowship
-21 data/a9407639.txt Mathematical Sciences: Postdoctoral Research Fellowship
-22 data/a9407657.txt Mathematical Sciences: Postdoctoral Research Fellowship
-23 data/a9421019.txt U.S.-Hungary Research on Effect of Disorder on Spin-Density Wave Excitations in Organic Conductors
+- 73 frequent itemsets in 42.02985763549805 ms
+- 1 iteration completed in 42.02985763549805 ms
+\# Computing C2 and L2{\ldots}
+- 2628 candidates in 0.0 ms
 
     \end{Verbatim}
 
-    \hypertarget{signatures}{%
-\section{Signatures}\label{signatures}}
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}3}]:} \PY{n}{sim\PYZus{}sig} \PY{o}{=} \PY{n}{c}\PY{o}{.}\PY{n}{compute\PYZus{}similarities}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{signatures}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
-        \PY{n}{c}\PY{o}{.}\PY{n}{generate\PYZus{}plots}\PY{p}{(}\PY{n}{sim\PYZus{}sig}\PY{p}{,} \PY{n}{save}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
-\end{Verbatim}
-
-    \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_7_0.png}
-    \end{center}
-    { \hspace*{\fill} \\}
     
-    \begin{center}
-    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_7_1.png}
-    \end{center}
-    { \hspace*{\fill} \\}
+    \begin{verbatim}
+HBox(children=(IntProgress(value=0, max=2628), HTML(value='')))
+    \end{verbatim}
+
     
     \begin{Verbatim}[commandchars=\\\{\}]
-0 data/a9001582.txt Japanese Language Award for Frank Pollick
-1 data/a9017348.txt MGR Honorable Mention: Sylvia R. Nieto
-2 data/a9018434.txt Development of a Multi-anvil Apparatus
-3 data/a9020902.txt Minority Graduate Research Honorable Mention: Katya Prince
-4 data/a9021100.txt Solar and Planetary Variations and Atmospheric Transparency
-5 data/a9055091.txt Young Scholars in Chemistry at UC-Denver
-6 data/a9104421.txt Mathematical Sciences: Research in "Stochastic Processes andtheir Applications
-7 data/a9107914.txt Mathematical Sciences: Postdoctoral Research Fellowship
-8 data/a9107969.txt Mathematical Sciences: Postdoctoral Research Fellowship
-9 data/a9113428.txt Elementary Particle and Astroparticle Physics
-10 data/a9117199.txt Rotational Spectroscopy of Small Clusters
-11 data/a9123845.txt Mathematical Sciences: Automorphic L-functions and Representation Theory
-12 data/a9203393.txt Mathematical Sciences: The Theory of Automorphic Forms
-13 data/a9207485.txt Japanese Language Award for Bill Cheongling Lai
-14 data/a9216545.txt A Generic Framework for Flexible Agent-Based Intelligent Control
-15 data/a9305308.txt Identification of Functionally Important Sequences in H1 Histones
-16 data/a9305965.txt Mathematical Sciences:Postdoctoral Research Fellowship
-17 data/a9353723.txt NSF-NATO POSTDOCTORAL FELLOWSHIP
-18 data/a9354081.txt GRADUATE RESEARCH FELLOWSHIP PROGRAM
-19 data/a9355770.txt GRADUATE RESEARCH FELLOWSHIP PROGRAM
-20 data/a9407458.txt Mathematical Sciences: Postdoctoral Research Fellowship
-21 data/a9407639.txt Mathematical Sciences: Postdoctoral Research Fellowship
-22 data/a9407657.txt Mathematical Sciences: Postdoctoral Research Fellowship
-23 data/a9421019.txt U.S.-Hungary Research on Effect of Disorder on Spin-Density Wave Excitations in Organic Conductors
+
+- 2 frequent itemsets in 118.00217628479004 ms
+- 2 iteration completed in 118.00217628479004 ms
+\# Computing C3 and L3{\ldots}
 
     \end{Verbatim}
 
-    \hypertarget{lsh}{%
-\section{LSH}\label{lsh}}
+    
+    \begin{verbatim}
+HBox(children=(IntProgress(value=0, max=2), HTML(value='')))
+    \end{verbatim}
+
+    
+    \begin{Verbatim}[commandchars=\\\{\}]
+
+Apriori computed: 0.1783853 seconds
+L0: [frozenset(\{'538'\}), frozenset(\{'809'\}), frozenset(\{'614'\}), frozenset(\{'460'\}), frozenset(\{'392'\}), frozenset(\{'489'\}), frozenset(\{'720'\}), frozenset(\{'494'\}), frozenset(\{'594'\}), frozenset(\{'381'\})]
+
+L1: [frozenset(\{'704', '825'\}), frozenset(\{'853', '766'\})]
+
+
+    \end{Verbatim}
+
+    \hypertarget{association-rules}{%
+\subsection{Association rules}\label{association-rules}}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{candidates} \PY{o}{=} \PY{n}{c}\PY{o}{.}\PY{n}{compute\PYZus{}lsh}\PY{p}{(}\PY{l+m+mf}{0.5}\PY{p}{,} \PY{l+m+mi}{10}\PY{p}{)}
-        \PY{n}{candidates}
+{\color{incolor}In [{\color{incolor}3}]:} \PY{n}{gar\PYZus{}ms} \PY{o}{=} \PY{n}{timeit}\PY{o}{.}\PY{n}{timeit}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{apriori.get\PYZus{}association\PYZus{}rules(confidence=CONFIDENCE, verbose=True)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{number}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n+nb}{globals}\PY{o}{=}\PY{n+nb}{globals}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Association rules computed: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{ seconds}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{gar\PYZus{}ms}\PY{p}{)}\PY{p}{)}
+        
+        \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Association rules:}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{k}{for} \PY{n}{r}\PY{p}{,} \PY{p}{(}\PY{n}{c}\PY{p}{,} \PY{n}{s}\PY{p}{)} \PY{o+ow}{in} \PY{n}{apriori}\PY{o}{.}\PY{n}{association\PYZus{}rules}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{:}
+            \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Rule: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{ \PYZhy{}\PYZgt{} }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{ \PYZhy{} Confidence: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{ \PYZhy{} Support: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n+nb}{list}\PY{p}{(}\PY{n}{r}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}\PY{p}{,} \PY{n+nb}{list}\PY{p}{(}\PY{n}{r}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{p}{,} \PY{n}{c}\PY{p}{,} \PY{n}{s}\PY{p}{)}\PY{p}{)}
 \end{Verbatim}
 
-\begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}2}]:} [(7, 21, 0.688),
-         (1, 3, 0.603),
-         (20, 7, 0.679),
-         (18, 19, 0.908),
-         (16, 21, 0.812),
-         (20, 8, 0.702),
-         (22, 20, 0.82),
-         (21, 20, 0.829),
-         (22, 16, 0.815),
-         (21, 8, 0.691),
-         (22, 7, 0.663),
-         (8, 16, 0.724),
-         (22, 21, 0.802),
-         (17, 19, 0.887),
-         (18, 17, 0.895),
-         (8, 7, 0.814),
-         (8, 22, 0.693),
-         (0, 13, 0.966),
-         (16, 20, 0.823)]
+    \begin{Verbatim}[commandchars=\\\{\}]
+Association rules computed: 0.00039050000000001583 seconds
+Association rules:
+Rule: ['766'] -> ['853'] - Confidence: 0.8 - Support: 4
+
+    \end{Verbatim}
+
+    \hypertarget{visualization}{%
+\section{Visualization}\label{visualization}}
+
+\hypertarget{scatterplot-with-confidence-and-support}{%
+\subsubsection{Scatterplot with confidence and
+support}\label{scatterplot-with-confidence-and-support}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}4}]:} \PY{o}{\PYZpc{}}\PY{k}{matplotlib} inline
+        \PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
+        
+        \PY{k}{if} \PY{n}{apriori}\PY{o}{.}\PY{n}{association\PYZus{}rules}\PY{p}{:}
+            \PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{apriori}\PY{o}{.}\PY{n}{association\PYZus{}rules}\PY{o}{.}\PY{n}{values}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+            \PY{n}{df}\PY{o}{.}\PY{n}{columns} \PY{o}{=} \PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{confidence}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{support}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}
+            \PY{n}{df}\PY{o}{.}\PY{n}{plot}\PY{o}{.}\PY{n}{scatter}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{confidence}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{support}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{k}{else}\PY{p}{:}
+            \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{No association rules}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
 \end{Verbatim}
-            
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_11_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \hypertarget{connected-graph}{%
+\section{Connected graph}\label{connected-graph}}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}5}]:} \PY{k+kn}{import} \PY{n+nn}{networkx} \PY{k}{as} \PY{n+nn}{nx}
+        \PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+        
+        \PY{k}{if} \PY{n}{apriori}\PY{o}{.}\PY{n}{association\PYZus{}rules}\PY{p}{:}
+            \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{10}\PY{p}{,} \PY{l+m+mi}{10}\PY{p}{)}\PY{p}{)}
+            \PY{n}{G} \PY{o}{=} \PY{n}{nx}\PY{o}{.}\PY{n}{DiGraph}\PY{p}{(}\PY{p}{)}
+            \PY{k}{for} \PY{n}{r}\PY{p}{,} \PY{p}{(}\PY{n}{c}\PY{p}{,} \PY{n}{s}\PY{p}{)} \PY{o+ow}{in} \PY{n}{apriori}\PY{o}{.}\PY{n}{association\PYZus{}rules}\PY{o}{.}\PY{n}{items}\PY{p}{(}\PY{p}{)}\PY{p}{:}
+                \PY{n}{end} \PY{o}{=} \PY{n+nb}{list}\PY{p}{(}\PY{n}{r}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+                \PY{k}{for} \PY{n}{rx} \PY{o+ow}{in} \PY{n+nb}{list}\PY{p}{(}\PY{n}{r}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}\PY{p}{:}
+                    \PY{n}{G}\PY{o}{.}\PY{n}{add\PYZus{}edge}\PY{p}{(}\PY{n}{rx}\PY{p}{,} \PY{n}{end}\PY{p}{,} \PY{n}{weight}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{arrowsize}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{)}
+            \PY{n}{edges} \PY{o}{=} \PY{p}{[}
+                \PY{p}{(}\PY{n}{u}\PY{p}{,} \PY{n}{v}\PY{p}{)} \PY{k}{for} \PY{p}{(}\PY{n}{u}\PY{p}{,} \PY{n}{v}\PY{p}{,} \PY{n}{d}\PY{p}{)} \PY{o+ow}{in} \PY{n}{G}\PY{o}{.}\PY{n}{edges}\PY{p}{(}\PY{n}{data}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+            \PY{p}{]}
+            \PY{n}{pos} \PY{o}{=} \PY{n}{nx}\PY{o}{.}\PY{n}{spring\PYZus{}layout}\PY{p}{(}\PY{n}{G}\PY{p}{)}  \PY{c+c1}{\PYZsh{} positions for all nodes}
+            \PY{n}{nx}\PY{o}{.}\PY{n}{draw\PYZus{}networkx\PYZus{}nodes}\PY{p}{(}\PY{n}{G}\PY{p}{,} \PY{n}{pos}\PY{p}{,} \PY{n}{node\PYZus{}size}\PY{o}{=}\PY{l+m+mi}{1000}\PY{p}{)}
+            \PY{n}{nx}\PY{o}{.}\PY{n}{draw\PYZus{}networkx\PYZus{}edges}\PY{p}{(}\PY{n}{G}\PY{p}{,} \PY{n}{pos}\PY{p}{,} \PY{n}{edgelist}\PY{o}{=}\PY{n}{edges}\PY{p}{,} \PY{n}{width}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{arrows}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+            \PY{n}{nx}\PY{o}{.}\PY{n}{draw\PYZus{}networkx\PYZus{}labels}\PY{p}{(}\PY{n}{G}\PY{p}{,} \PY{n}{pos}\PY{p}{,} \PY{n}{font\PYZus{}size}\PY{o}{=}\PY{l+m+mi}{10}\PY{p}{,} \PY{n}{font\PYZus{}family}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sans\PYZhy{}serif}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+            \PY{n}{plt}\PY{o}{.}\PY{n}{axis}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{off}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+            \PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+            \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{k}{else}\PY{p}{:}
+            \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{No association rules}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_13_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{Verbatim}[commandchars=\\\{\}]
+
+
+    \end{Verbatim}
+
     \hypertarget{references}{%
 \section{References}\label{references}}
 
-{[}1{]} Dheeru Dua and Casey Graff.UCI Machine Learning Repository.
-2017.url:http://archive.ics.uci.edu/ml.
+R. Agrawal and R. Srikant. Fast Algorithms for Mining Association Rules,
+VLDB '94, URL: http://www.vldb.org/conf/1994/P487.PDF
 
 
     % Add a bibliography block to the postdoc
